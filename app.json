@@ -1,0 +1,37 @@
+{
+    "name": "Agora ActiveFence Kicker",
+    "description": "An endpoint for kicking users with the ActiveFence extension",
+    "repository": "https://github.com/AgoraIO-Community/agora-activefence-kicker",
+    "logo": "https://www.agora.io/en/wp-content/themes/agora-main/images/agora-logo.svg",
+    "website": "http://www.agora.io",
+    "keywords": [
+        "agora",
+        "Agora.io",
+        "activefence",
+        "content-moderation",
+        "moderation",
+        "video",
+        "voice",
+        "communications",
+        "recording",
+        "ARS",
+        "server",
+        "go",
+        "golang",
+        "gin"
+    ],
+    "env": {
+        "APP_ID": {
+            "description": "Agora.io App ID: Login to the Agora.io Developer Dashboard (http://dashboard.agora.io), and navigate to the \"Projects\" tab to get this value",
+            "required": true
+        },
+        "CUSTOMER_KEY": {
+            "description": "Agora.io Customer Key: Login to the Agora.io Developer Dashboard (http://dashboard.agora.io), and navigate to the \"RESTful API\" page to get this value (https://console.agora.io/restfulApi)",
+            "required": true
+        },
+        "CUSTOMER_SECRET": {
+            "description": "Agora.io Customer Secret: Login to the Agora.io Developer Dashboard (http://dashboard.agora.io), and navigate to the \"RESTful API\" page to get this value (https://console.agora.io/restfulApi)",
+            "required": true
+        }
+    }
+}

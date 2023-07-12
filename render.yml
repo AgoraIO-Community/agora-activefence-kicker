@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: Agora ActiveFence Kicker
+    env: docker
+    repo: https://github.com/AgoraIO-Community/agora-activefence-kicker.git
+    rootDir: .
+    plan: free
+    envVars:
+      - key: APP_ID
+        sync: false
+      - key: CUSTOMER_KEY
+        sync: false
+      - key: CUSTOMER_SECRET
+        sync: false

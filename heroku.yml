@@ -1,0 +1,8 @@
+setup:
+  config:
+    APP_ID: APP_ID
+    CUSTOMER_KEY: CUSTOMER_KEY
+    CUSTOMER_SECRET: CUSTOMER_SECRET
+build:
+  docker:
+    web: Dockerfile
