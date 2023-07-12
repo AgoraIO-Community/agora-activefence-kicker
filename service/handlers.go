@@ -12,6 +12,7 @@ import (
 
 func (s *Service) kickUser(c *gin.Context) {
 
+	fmt.Println(c.Request.Body)
 	var incomingReq ActiveFenceReq
 	json.NewDecoder(c.Request.Body).Decode(&incomingReq)
 
