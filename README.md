@@ -2,6 +2,12 @@
 
 This Go package provides a library for kicking users from Agora channels via the REST API. If used directly with the cmd/main.go file it will expect the same POST request that the ActiveFence backend sends at the "/kick" endpoint.
 
+## One-Click Deployments
+
+| Railway | Render | Heroku |
+|:-:|:-:|:-:|
+| [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/piHt63?referralCode=waRWUT) | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/AgoraIO-Community/agora-activefence-kicker) | [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy/?template=https://github.com/AgoraIO-Community/agora-activefence-kicker) |
+
 ## Usage
 
 To use this package, set the following environment variables:
