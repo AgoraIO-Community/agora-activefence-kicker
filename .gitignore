@@ -16,6 +16,7 @@
 main
 agora-activefence-kicker
 !Dockerfile
+!LICENSE
 
 # Test binary, built with `go test -c`
 *.test
