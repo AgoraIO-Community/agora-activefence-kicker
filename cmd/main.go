@@ -1,9 +1,9 @@
 package main
 
-import "agora-activefence-kicker/service"
+import kickService "github.com/AgoraIO-Community/agora-activefence-kicker/service"
 
 func main() {
-	s := service.NewService()
+	s := kickService.NewService()
 	// Stop is called on another thread, but waits for an interrupt
 	go s.Stop()
 	s.Start()

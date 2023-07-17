@@ -1,4 +1,4 @@
-package service
+package kickService
 
 import (
 	"context"
@@ -10,16 +10,15 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 // Service is the backend service
 type Service struct {
-	Server       *http.Server
-	Sigint       chan os.Signal
-	appID        string
-	restuflToken string
+	Server    *http.Server
+	Sigint    chan os.Signal
+	appID     string
+	restToken string
 }
 
 // Stop service safely, closing additional connections if needed.
@@ -76,15 +75,13 @@ func NewService() *Service {
 		Server: &http.Server{
 			Addr: fmt.Sprintf(":%s", serverPort),
 		},
-		appID:        appIDEnv,
-		restuflToken: base64Credentials,
+		appID:     appIDEnv,
+		restToken: base64Credentials,
 	}
-
-	api := gin.Default()
-
-	api.POST("kick/", s.kickUser)
-
-	s.Server.Handler = api
+	mux := http.NewServeMux()
+	mux.HandleFunc("/kick/", s.KickHandler)
+	mux.HandleFunc("/kick", s.KickHandler)
+	s.Server.Handler = mux
 	return s
 }
 

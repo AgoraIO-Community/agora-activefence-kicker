@@ -1,4 +1,4 @@
-package service
+package kickService
 
 import (
 	"bytes"
@@ -6,76 +6,87 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-func (s *Service) kickUser(c *gin.Context) {
+// KickHandler handles incoming moderation kick requests from ActiveFence.
+// It parses the request, calls the Agora API to ban the user,
+// and returns the response.
+func (s *Service) KickHandler(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println(c.Request.Body)
+	// Decode JSON request body into struct
 	var incomingReq ActiveFenceReq
-	json.NewDecoder(c.Request.Body).Decode(&incomingReq)
-
-	// Parse metadata
-	var md ReqMetadata
-	fmt.Println(incomingReq.Metadata)
-	err := json.Unmarshal([]byte(incomingReq.Metadata), &md)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid Request: " + err.Error(),
-			"status":  http.StatusBadRequest,
-		})
+	if err := json.NewDecoder(r.Body).Decode(&incomingReq); err != nil {
+		http.Error(w, "Invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	channel := md.Cname
 
+	// Parse channel name from request metadata
+	var md ReqMetadata
+	if err := json.Unmarshal([]byte(incomingReq.Metadata), &md); err != nil {
+		http.Error(w, "Invalid metadata: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Call service method to ban user
+	// 300 seconds/5 minutes duration
+	if err := KickUser(s.appID, md.Cname, incomingReq.UID, 300, s.restToken); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return successful response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": fmt.Sprintf("User %s kicked from channel %s", incomingReq.UID, md.Cname),
+	})
+}
+
+// KickUser calls the Agora API to ban a user from a channel.
+//
+// It takes in the app ID, channel name, user ID, ban duration in seconds,
+// and Agora REST API token.
+//
+// The ban removes the "join_channel" privilege from the user for the
+// specified duration.
+//
+// Returns any error encountered, or nil if successful.
+func KickUser(appId string, channel string, userId string, duration int, restToken string) error {
 	// Call Agora API to kick
+
 	url := "https://api.agora.io/dev/v1/kicking-rule"
 
 	data := map[string]interface{}{
-		"appid":           s.appID,
+		"appid":           appId,
 		"cname":           channel,
-		"uid":             incomingReq.UID,
-		"time_in_seconds": 300, // 5 minute ban
+		"uid":             userId,
+		"time_in_seconds": duration,
 		"privileges":      []string{"join_channel"},
 	}
-	jsonData, _ := json.Marshal(data)
 
+	jsonData, _ := json.Marshal(data)
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": "Internal Error: " + err.Error(),
-			"status":  http.StatusInternalServerError,
-		})
-		return
+		return fmt.Errorf("Internal Error: %s", err.Error())
 	}
+
 	// Add Authorization header
-	req.Header.Add("Authorization", "Basic "+s.restuflToken)
+	req.Header.Add("Authorization", "Basic "+restToken)
 	req.Header.Add("Content-Type", "application/json")
 
 	// Send HTTP request
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"message": "Request to Agora API Failed: " + err.Error(),
-			"status":  http.StatusInternalServerError,
-		})
-		return
+		return fmt.Errorf("Request to Agora API Failed: "+err.Error(), http.StatusInternalServerError)
 	}
 	fmt.Println(string(body))
-
-	c.Writer.WriteHeader(http.StatusOK)
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf(`User %s kicked from channel %s`, incomingReq.UID, channel),
-	})
+	return nil
 }

@@ -10,7 +10,7 @@ This Go package provides a library for kicking users from Agora channels via the
 
 ## Usage
 
-To use this package, set the following environment variables:
+To use this package in your own server, you could set the following environment variables:
 
 - `APP_ID` - Your Agora app ID  
 - `CUSTOMER_KEY` - Your Agora customer key
@@ -18,21 +18,35 @@ To use this package, set the following environment variables:
 
 You can optionally add these in a `.env` file at the root directory of the project. 
 
-Then import the package and call the `KickUser` method:
+Then import the kickService and start serving with default settings:
 
 ```go
-import "github.com/myorg/agora-activefence-kicker"
+import kickService "github.com/AgoraIO-Community/agora-activefence-kicker/service"
 
-err := kicker.KickUser(channelName, uid, durationMinutes) 
+s := kickService.NewService()
+go s.Stop()
+s.Start()
+```
+
+> This will add the endpoint `/kick` and expect the default post request shown below. It will kick a user for 5 minutes.
+
+Alternatively, if you want to send different types of POST requests, you can call KickUser directly:
+
+```go
+kickService.KickUser(
+  "app-id",
+  "channel",
+  999, // user ID
+  300, // Seconds to ban user for
+  "rest-token"
+)
 ```
 
 This will call the Agora API to ban the user from joining the specified channel for the duration. 
 
-See the [examples](/examples) folder for more usage examples.
-
 ## Running 
 
-To run the example server:
+To run the example server with default implementation:
 
 ```
 go run cmd/main.go
