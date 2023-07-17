@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -68,7 +68,7 @@ func KickUser(appId string, channel string, userId string, duration int, restTok
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 
 	if err != nil {
-		return fmt.Errorf("Internal Error: %s", err.Error())
+		return fmt.Errorf("internal Error: %s", err.Error())
 	}
 
 	// Add Authorization header
@@ -82,10 +82,10 @@ func KickUser(appId string, channel string, userId string, duration int, restTok
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Errorf("Request to Agora API Failed: "+err.Error(), http.StatusInternalServerError)
+		return fmt.Errorf("request to Agora API Failed: "+err.Error(), http.StatusInternalServerError)
 	}
 	fmt.Println(string(body))
 	return nil
